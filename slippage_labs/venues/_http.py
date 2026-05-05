@@ -11,7 +11,7 @@ import httpx
 
 from slippage_labs import __version__
 
-USER_AGENT = f"slippage-labs/{__version__} (+https://github.com/yourusername/slippage-labs)"
+USER_AGENT = f"slippage-labs/{__version__} (+https://github.com/Background-glitch/slippage-labs)"
 DEFAULT_TIMEOUT = httpx.Timeout(15.0, connect=10.0)
 
 _client: httpx.Client | None = None

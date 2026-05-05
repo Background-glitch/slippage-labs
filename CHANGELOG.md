@@ -36,5 +36,5 @@ First public release. CLI for honest slippage analytics on prediction markets.
 - **Docs**: README with install, usage examples, slippage methodology, and
   explicit "what's modeled / what isn't" section.
 
-[Unreleased]: https://github.com/yourusername/slippage-labs/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/yourusername/slippage-labs/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Background-glitch/slippage-labs/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Background-glitch/slippage-labs/releases/tag/v0.1.0
