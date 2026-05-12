@@ -107,8 +107,20 @@ def solve_max_budget(
             book_bound=False,
         )
 
-    # Regime 2: full sweep stays under threshold → book is the binding constraint.
+    # Zero-notional asks (every level has size 0): no liquidity to take. Report
+    # as book-bound rather than infeasible — the threshold isn't the problem.
     ceiling = book.total_ask_notional
+    if ceiling <= 0:
+        return MaxBudgetResult(
+            budget=0.0,
+            fill=simulate_buy(book, 0.0),
+            threshold_pct=threshold_pct,
+            reference_price=ref_price,
+            reference_kind=reference,
+            book_bound=True,
+        )
+
+    # Regime 2: full sweep stays under threshold → book is the binding constraint.
     full = simulate_buy(book, ceiling)
     full_slip = full.slippage_vs(ref_price)
     if full_slip is not None and full_slip <= threshold_pct:
