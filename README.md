@@ -104,6 +104,9 @@ This tool answers a narrow question (**"what would I pay for this much exposure 
 
 Single-market URLs (`polymarket.com/market/<slug>`) are recognized and emit a clear "use the event URL instead" message in v0.1; first-class single-market support is on the v0.2 list.
 
+## AI Use Statement
+This project was developed with AI assistance (Claude, Codex, etc) for drafting, refactoring, and test scaffolding. All code paths, venue assumptions, edge cases, and tests were manually reviewed and revised by the maintainer.
+
 ## Development
 
 ```bash
