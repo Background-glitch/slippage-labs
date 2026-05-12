@@ -137,13 +137,16 @@ def main(
         err_console.print(f"[red]network error:[/red] {e}")
         raise typer.Exit(code=1) from None
 
-    targets = _select_markets(event, market)
-    if not targets:
+    if not event.markets:
+        err_console.print(f"[red]error:[/red] event {event.id!r} has no markets to price.")
+        raise typer.Exit(code=2)
+    if market is not None and (market < 0 or market >= len(event.markets)):
         err_console.print(
             f"[red]error:[/red] --market {market} out of range "
             f"(event has {len(event.markets)} sub-markets, indices 0..{len(event.markets)-1})"
         )
         raise typer.Exit(code=2)
+    targets = _select_markets(event, market)
 
     sims: list[MarketSimulation] = []
     total = len(targets) * len(sides)
