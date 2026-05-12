@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-05-12
+
+### Fixed
+
+- **Polymarket**: a single sub-market with non-`Yes`/`No` outcomes (or missing
+  `clobTokenIds`) no longer aborts the whole event resolve — affected
+  sub-markets are skipped, and resolve raises a clear error only if *every*
+  market is unusable. Outcome matching is also case-insensitive now.
+- **Kalshi**: a degenerate cross-side bid (NO bid at $1.00 ⇒ synthesized YES
+  ask at $0.00) is dropped instead of failing the entire `fetch_book` call.
+- **CLI**: events that resolve with zero markets now produce an accurate
+  "no markets" error instead of a misleading "`--market` out of range
+  (indices 0..-1)".
+- **Engine**: `solve_max_budget` on a book whose ask side has zero total
+  notional now reports `book_bound` (no liquidity) rather than `infeasible`
+  (threshold too tight).
+- **Polymarket**: tolerate `bids: null` / `asks: null` in CLOB responses
+  (matches the Kalshi adapter's defensiveness).
+
 ## [0.1.0] - 2026-05-04
 
 First public release. CLI for honest slippage analytics on prediction markets.
@@ -36,5 +55,6 @@ First public release. CLI for honest slippage analytics on prediction markets.
 - **Docs**: README with install, usage examples, slippage methodology, and
   explicit "what's modeled / what isn't" section.
 
-[Unreleased]: https://github.com/Background-glitch/slippage-labs/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Background-glitch/slippage-labs/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/Background-glitch/slippage-labs/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Background-glitch/slippage-labs/releases/tag/v0.1.0
