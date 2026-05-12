@@ -56,7 +56,11 @@ class Polymarket(Venue):
         if not events:
             raise MarketNotFoundError(f"No Polymarket event for slug={slug!r}")
         ev = events[0]
-        markets = tuple(_parse_market(m) for m in ev.get("markets", []))
+        markets = tuple(filter(None, (_try_parse_market(m) for m in ev.get("markets", []))))
+        if not markets:
+            raise MarketNotFoundError(
+                f"Polymarket event {slug!r} has no binary (Yes/No) markets we can price."
+            )
         return Event(
             venue=self.name,
             id=slug,
@@ -74,8 +78,8 @@ class Polymarket(Venue):
         r.raise_for_status()
         raw = r.json()
         try:
-            bids = [Level(float(b["price"]), float(b["size"])) for b in raw.get("bids", [])]
-            asks = [Level(float(a["price"]), float(a["size"])) for a in raw.get("asks", [])]
+            bids = [Level(float(b["price"]), float(b["size"])) for b in (raw.get("bids") or [])]
+            asks = [Level(float(a["price"]), float(a["size"])) for a in (raw.get("asks") or [])]
         except (KeyError, TypeError, ValueError) as e:
             raise VenueError(
                 f"Polymarket returned invalid book data for token {token_id}: {e}"
@@ -101,11 +105,22 @@ def _slug_from_url(url: str) -> str:
 
 
 def _parse_market(m: dict) -> PolymarketMarket:
-    """Translate one entry from Gamma's `markets` array into a PolymarketMarket."""
-    outcomes = json.loads(m["outcomes"])           # e.g. ["Yes", "No"]
+    """Translate one entry from Gamma's `markets` array into a PolymarketMarket.
+
+    Raises ValueError for non-binary outcomes or missing token ids — callers
+    should decide whether to skip the sub-market or fail the whole event.
+    """
+    outcomes_raw = json.loads(m["outcomes"])       # e.g. ["Yes", "No"]
+    outcomes = [str(o).strip().lower() for o in outcomes_raw]
     token_ids = json.loads(m["clobTokenIds"])      # aligned with outcomes
-    yes_idx = outcomes.index("Yes")
-    no_idx = outcomes.index("No")
+    if "yes" not in outcomes or "no" not in outcomes:
+        raise ValueError(f"non-binary outcomes {outcomes_raw!r}")
+    if len(token_ids) != len(outcomes):
+        raise ValueError("clobTokenIds length doesn't match outcomes")
+    yes_idx = outcomes.index("yes")
+    no_idx = outcomes.index("no")
+    if not token_ids[yes_idx] or not token_ids[no_idx]:
+        raise ValueError("empty clobTokenId for Yes or No outcome")
     return PolymarketMarket(
         venue="polymarket",
         id=m.get("conditionId") or m.get("id", ""),
@@ -113,3 +128,11 @@ def _parse_market(m: dict) -> PolymarketMarket:
         yes_token=token_ids[yes_idx],
         no_token=token_ids[no_idx],
     )
+
+
+def _try_parse_market(m: dict) -> PolymarketMarket | None:
+    """Best-effort parse — return None for malformed/non-binary sub-markets."""
+    try:
+        return _parse_market(m)
+    except (KeyError, ValueError, TypeError, json.JSONDecodeError):
+        return None
