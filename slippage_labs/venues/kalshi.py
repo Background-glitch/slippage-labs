@@ -95,10 +95,17 @@ class Kalshi(Venue):
             own_bids, cross_bids = yes_bids, no_bids
         else:
             own_bids, cross_bids = no_bids, yes_bids
-        try:
-            asks = [Level(round(1 - lv.price, 4), lv.size) for lv in cross_bids]
-        except ValueError as e:
-            raise VenueError(f"Kalshi orderbook contains invalid level for {market.id}: {e}") from e
+        asks: list[Level] = []
+        for lv in cross_bids:
+            ask_price = round(1 - lv.price, 4)
+            # Degenerate cross levels (e.g. NO bid at $1.00 ⇒ YES ask at $0.00)
+            # are dropped rather than failing the whole book.
+            if ask_price <= 0 or ask_price > 1:
+                continue
+            try:
+                asks.append(Level(ask_price, lv.size))
+            except ValueError:
+                continue
         return Book.from_levels(own_bids, asks)
 
 
