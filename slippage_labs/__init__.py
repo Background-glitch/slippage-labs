@@ -1,6 +1,6 @@
 """slippage-labs — honest liquidity & slippage analytics for prediction markets."""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from slippage_labs.engine.book import Book, Level
 from slippage_labs.engine.solver import MaxBudgetResult, solve_max_budget
