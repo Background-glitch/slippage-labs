@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "slippage-labs"
-version = "0.1.1"
+dynamic = ["version"]
 description = "Honest liquidity & slippage analytics for prediction markets"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -40,8 +40,21 @@ slippage-labs = "slippage_labs.cli:app"
 Homepage = "https://github.com/Background-glitch/slippage-labs"
 Issues = "https://github.com/Background-glitch/slippage-labs/issues"
 
+[tool.hatch.version]
+path = "slippage_labs/__init__.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["slippage_labs"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/slippage_labs",
+    "/tests",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/LICENSE",
+    "/pyproject.toml",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
